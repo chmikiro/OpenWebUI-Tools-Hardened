@@ -10,7 +10,6 @@ try:
 except ImportError:
     raise ImportError("Install: pip install pysocks beautifulsoup4 markdownify")
 
-
 import re
 from typing import Awaitable, Callable, Optional
 from urllib.parse import urlparse
@@ -57,17 +56,10 @@ class Tools:
     def _md(self, body: str, ctype: str) -> str:
         if "html" not in ctype:
             return body
-        try:
-            from bs4 import BeautifulSoup  # type: ignore
-            from markdownify import markdownify  # type: ignore
-
-            soup = BeautifulSoup(body, "html.parser")
-            for t in soup(["script", "style", "noscript", "iframe", "svg", "form"]):
-                t.decompose()
-            return re.sub(r"\n{3,}", "\n\n", markdownify(str(soup), heading_style="ATX")).strip()
-        except ImportError:
-            t = re.sub(r"(?is)<(script|style|noscript)[^>]*>.*?</\1>", "", body)
-            return re.sub(r"\s+", " ", re.sub(r"(?s)<[^>]+>", " ", t)).strip()
+        soup = BeautifulSoup(body, "html.parser")
+        for t in soup(["script", "style", "noscript", "iframe", "svg", "form"]):
+            t.decompose()
+        return re.sub(r"\n{3,}", "\n\n", markdownify(str(soup), heading_style="ATX")).strip()
 
     async def scrape_website(
         self, url: str, __event_emitter__: Optional[Callable[[dict], Awaitable[None]]] = None
